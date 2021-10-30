@@ -1,0 +1,61 @@
+const darkTheme = {
+  theme: {
+    colors: {
+      background: '#121214',
+      text: '#eeeeee',
+      primary: '#6df5ed',
+      backgroundImg: '/background/background.jpg',
+      buttonText: '#303030',
+      primaryHover: '#3bd3db',
+      navbar: '#121212',
+      reverseText: '#eeeeee',
+      popupBackground: '#eeeeee',
+      backgroundContent: '#eeeeee',
+      imgFluxColor: '#101012',
+      imgFluxText: '#eeeeee',
+      footerColor: '#101012',
+      footerText: '#eeeeee',
+      cardBoxColor: '#242424',
+      cardColor: '#101012',
+      cardColorHover: 'linear-gradient(45deg, #6df5ed, #980bd9)',
+      cardColorText: '#eeeeee',
+      cardColorTextHover: '#cccccc',
+      cardColorButton: '#6df5ed',
+      cardColorButtonText: '#101012',
+      cardColorButtonHover: '#eeeeee',
+      textGradient: `-webkit-linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(71,237,193,0.779131635564382) 48%, rgba(0,212,255,1) 100%)`,
+    },
+  },
+};
+
+const lightTheme = {
+  theme: {
+    colors: {
+      background: '#eeeeee',
+      text: '#121214',
+      primary: '#8257e6',
+      backgroundImg: '/background/whiteBackground.jpg',
+      buttonText: '#eeeeee',
+      primaryHover: '#6035c4',
+      navbar: '#eeeeee',
+      reverseText: '#121212',
+      popupBackground: '#121212',
+      backgroundContent: '#101012',
+      imgFluxColor: '#101012',
+      imgFluxText: '#eeeeee',
+      footerColor: '#101012',
+      footerText: '#eeeeee',
+      cardBoxColor: '#ffffff',
+      cardColor: '#eeeeee',
+      cardColorHover: 'linear-gradient(45deg, #980bd9, #6df5ed)',
+      cardColorText: '#101012',
+      cardColorTextHover: '#cccccc',
+      cardColorButton: '#8257e6',
+      cardColorButtonText: '#101012',
+      cardColorButtonHover: '#eeeeee',
+      textGradient: `linear-gradient(45deg, rgba(172,172,176,1) 0%, rgba(204,71,237,0.779131635564382) 48%, rgba(175,0,255,1) 100%)`,
+    },
+  },
+};
+
+export { darkTheme, lightTheme };
