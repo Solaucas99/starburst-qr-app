@@ -8,7 +8,6 @@ import { Button } from 'react-bootstrap';
 import { Container } from '@styles/Index/Index';
 import { List } from '@styles/Visitors/Profile/Index';
 import { useFetch } from '@hooks/useFetch';
-import { decryptAES } from '@utils/decrypt';
 import toast from '@services/toastMessage';
 import axios from '@services/axios';
 import Loading from '@components/Loading';
@@ -99,16 +98,23 @@ const Visitor: NextPage = () => {
             Nome:
             <li>{data.data.nome}</li>
             E-mail:
-            <li>{decryptAES(data.data.email)}</li>
+            <li>{data.data.email}</li>
             CPF:
             <li>
-              {decryptAES(data.data.cpf).replace(
+              {data.data.cpf.replace(
                 /(\d{3})(\d{3})(\d{3})(\d{2})/g,
                 '$1.$2.$3-$4'
               )}
             </li>
             Celular ou Telefone:{' '}
-            <li>{data.data.phone ? data.data.phone : 'Não tem'}</li>
+            <li>
+              {data.data.phone
+                ? data.data.phone.replace(
+                    /(\d{2})(\d{2})(\d{0})(\d{5})/,
+                    '$1 $2$3 $4-'
+                  )
+                : 'Não tem'}
+            </li>
             E-mail confirmado?:
             <li
               style={
@@ -130,11 +136,7 @@ const Visitor: NextPage = () => {
               {data.data.accept_promotions ? 'Sim' : 'Não'}
             </li>
             <li>
-              <Link
-                href={`/visitors/update/send?email=${decryptAES(
-                  data.data.email
-                )}`}
-              >
+              <Link href={`/visitors/update/send?email=${data.data.email}`}>
                 <Button variant="info" disabled={!data.data.confirmed_email}>
                   Editar Visitante
                 </Button>

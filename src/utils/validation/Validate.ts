@@ -22,6 +22,14 @@ interface VisitorsSignIn {
   cpf: string;
   name: string;
   email: string;
+  phone: string;
+  isCaptchaChecked: boolean;
+}
+
+interface VisitorsUpdate {
+  name: string;
+  email: string;
+  phone: string;
   isCaptchaChecked: boolean;
 }
 
@@ -36,11 +44,6 @@ class Validate {
 
     if (visitorsAttr.name.length < 5) {
       errors.push('O campo nome é muito pequeno. Insira seu nome completo.');
-      // return {
-      //   valid: false,
-      //   message: 'O campo nome é muito pequeno. Insira seu nome completo.',
-      //   status: 'error',
-      // };
     }
 
     if (
@@ -48,41 +51,76 @@ class Validate {
       visitorsAttr.name
     ) {
       errors.push('O campo nome está inválido. Preencha novamente.');
-
-      // return {
-      //   valid: false,
-      //   message: 'O campo nome está inválido. Preencha novamente.',
-      //   status: 'error',
-      // };
     }
 
     if (!Validate.validateCPF(visitorsAttr.cpf)) {
       errors.push('O CPF inserido é inválido. Preencha novamente.');
-      // return {
-      //   valid: false,
-      //   message: 'O CPF inserido é inválido. Preencha novamente',
-      //   status: 'error',
-      // };
     }
 
     if (!validator.isEmail(visitorsAttr.email)) {
       errors.push('O e-mail inserido é inválido. Preencha novamente.');
+    }
 
-      // return {
-      //   valid: false,
-      //   message: 'O E-mail inserido é inválido. Preencha novamente',
-      //   status: 'error',
-      // };
+    if (
+      !validator.isMobilePhone(visitorsAttr.phone, 'pt-BR', {
+        strictMode: true,
+      })
+    ) {
+      errors.push('O e-mail inserido é inválido. Preencha novamente.');
     }
 
     if (!visitorsAttr.isCaptchaChecked) {
       errors.push('Você precisa clicar em "Não sou um robô" para continuar.');
+    }
 
-      // return {
-      //   valid: false,
-      //   message: 'Você precisa clicar em "Não sou um robô" para continuar',
-      //   status: 'error',
-      // };
+    if (errors.length > 0) {
+      return {
+        valid: false,
+        message: errors,
+        status: 'error',
+      };
+    }
+
+    return {
+      valid: true,
+      message: 'Todos os campos estão válidos.',
+      status: 'success',
+    };
+  }
+
+  public static VisitorsUpdate(visitorsAttr: VisitorsUpdate): ValidationReturn {
+    const errors: string[] = [];
+
+    const emptyFields = Validate.checkEmptyFields(visitorsAttr);
+    if (!emptyFields.valid && typeof emptyFields.message === 'string') {
+      errors.push(emptyFields.message);
+    }
+
+    if (visitorsAttr.name.length < 5) {
+      errors.push('O campo nome é muito pequeno. Insira seu nome completo.');
+    }
+
+    if (
+      visitorsAttr.name.charAt(0).repeat(visitorsAttr.name.length) ===
+      visitorsAttr.name
+    ) {
+      errors.push('O campo nome está inválido. Preencha novamente.');
+    }
+
+    if (!validator.isEmail(visitorsAttr.email)) {
+      errors.push('O e-mail inserido é inválido. Preencha novamente.');
+    }
+
+    if (
+      !validator.isMobilePhone(visitorsAttr.phone, 'pt-BR', {
+        strictMode: true,
+      })
+    ) {
+      errors.push('O e-mail inserido é inválido. Preencha novamente.');
+    }
+
+    if (!visitorsAttr.isCaptchaChecked) {
+      errors.push('Você precisa clicar em "Não sou um robô" para continuar.');
     }
 
     if (errors.length > 0) {

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { refreshToken } from './refreshToken';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'https://api.starburst-qr.online',
   timeout: 20000,
   withCredentials: true,
 });

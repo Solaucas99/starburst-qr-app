@@ -41,7 +41,9 @@ const Visit: NextPage = () => {
     const hour = actualDate.getHours();
     const minutes = actualDate.getMinutes();
 
-    return `${day}/${month}/${year} - ${hour}:${minutes}`;
+    return `${day}/${month}/${year} - ${hour <= 9 ? `0${hour}` : hour}:${
+      minutes <= 9 ? `0${minutes}` : minutes
+    }`;
   };
 
   const popupCallback = useCallback(

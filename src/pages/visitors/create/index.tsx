@@ -20,6 +20,15 @@ const Index: NextPage = () => {
       setIsLoading(true);
       e.preventDefault();
 
+      if (!email) {
+        setIsLoading(false);
+        toast(
+          'Você precisa inserir um e-mail para enviar um convite.',
+          'error'
+        );
+        return;
+      }
+
       if (!validator.isEmail(email)) {
         setIsLoading(false);
         toast('O e-mail inserido é inválido', 'error');

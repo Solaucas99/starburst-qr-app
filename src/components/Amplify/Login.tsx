@@ -97,15 +97,8 @@ const Login: NextPage = () => {
         setLoggedState();
       }
     } catch (err) {
-      const trad = {
-        'Incorrect username or password.':
-          'Usuário inválido ou senha inválida.',
-        'Temporary password has expired and must be reset by an administrator.':
-          'A senha temporária expirou e precisa ser resetada pelo administrador... Entre em contato com ele.',
-      };
-
       setState({ ...state, isLoading: false });
-      toastMessage(trad[err.message], 'error');
+      toastMessage(err.message, 'error');
     }
   };
 
@@ -153,15 +146,8 @@ const Login: NextPage = () => {
         setLoggedState();
       }
     } catch (err) {
-      const trad = {
-        'Incorrect username or password.':
-          'Usuário inválido ou senha inválida.',
-        'Temporary password has expired and must be reset by an administrator.':
-          'A senha temporária expirou e precisa ser resetada pelo administrador... Entre em contato com ele.',
-      };
-
       setState({ ...state, isLoading: false });
-      toastMessage(trad[err.message], 'error');
+      toastMessage(err.message, 'error');
     }
   };
 
@@ -188,6 +174,7 @@ const Login: NextPage = () => {
                   required
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
+                  autoComplete="off"
                 />
                 <label htmlFor="new-password">Insira sua nova senha</label>
               </div>
@@ -201,6 +188,7 @@ const Login: NextPage = () => {
                   required
                   onChange={e => setName(e.target.value)}
                   value={name}
+                  autoComplete="off"
                 />
                 <label htmlFor="name">Insira seu nome completo</label>
               </div>
@@ -214,6 +202,7 @@ const Login: NextPage = () => {
                   required
                   onChange={e => setNickname(e.target.value)}
                   value={nickname}
+                  autoComplete="off"
                 />
                 <label htmlFor="nickname">Insira seu apelido</label>
               </div>
@@ -235,6 +224,7 @@ const Login: NextPage = () => {
                     );
                   }}
                   value={phoneNumber}
+                  autoComplete="off"
                 />
                 <label htmlFor="phone">
                   Insira seu celular ou telefone (DDD + Num.)
@@ -258,6 +248,7 @@ const Login: NextPage = () => {
                   id="username"
                   required
                   onChange={e => setUsername(e.target.value)}
+                  autoComplete="off"
                 />
                 <label htmlFor="username">Insira seu usuário</label>
               </div>
@@ -270,6 +261,7 @@ const Login: NextPage = () => {
                   id="password"
                   required
                   onChange={e => setPassword(e.target.value)}
+                  autoComplete="off"
                 />
                 <label htmlFor="password">Insira sua senha</label>
               </div>

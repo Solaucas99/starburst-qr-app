@@ -38,3 +38,5 @@ yarn-error.log*
 .eslintrc.json
 prettier.config.js
 .vscode/
+
+.vercel

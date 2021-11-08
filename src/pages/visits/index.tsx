@@ -4,10 +4,9 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Pagination } from 'react-bootstrap';
 import { useRouter } from 'next/router';
-import { BsSearch } from 'react-icons/bs';
+import { BsSearch, BsFillCalendarFill } from 'react-icons/bs';
 import { HiOutlineClipboardList } from 'react-icons/hi';
 
-import { decryptAES } from '@utils/decrypt';
 import { Container } from '@styles/Index/Index';
 import { List, ExternalList } from '@styles/Visits/Index/Index';
 import { useFetch } from '@hooks/useFetch';
@@ -80,6 +79,21 @@ const Index: NextPage = () => {
     setVisitFilter(order);
   }
 
+  function handleDateSearchVisitChange(e: string) {
+    const filter = data.data.filter(visit =>
+      visit.date.toUpperCase().includes(e.toUpperCase())
+    );
+
+    const order = filter.sort((visitA, visitB) => {
+      const dateA = new Date(visitA.date).getTime();
+      const dateB = new Date(visitB.date).getTime();
+
+      return dateA <= dateB ? -1 : 1;
+    });
+
+    setVisitFilter(order);
+  }
+
   function calculatePages(actualPage, actualLimit, elementsLength) {
     const index = (actualPage - 1) * actualLimit;
     const endIndex = actualPage * actualLimit;
@@ -112,16 +126,8 @@ const Index: NextPage = () => {
 
   useEffect(() => {
     if (data) {
-      const arr = data.data.map(value => {
-        const visit = value;
-        if (visit.visitor) {
-          visit.visitor.email = decryptAES(visit.visitor.email);
-          visit.visitor.cpf = decryptAES(visit.visitor.cpf);
-        }
-        return visit;
-      });
       setVisitFilter(
-        arr.sort((visitA, visitB) => {
+        data.data.sort((visitA, visitB) => {
           const dateA = new Date(visitA.date).getTime();
           const dateB = new Date(visitB.date).getTime();
 
@@ -147,26 +153,31 @@ const Index: NextPage = () => {
       {data && !isError && !isLoading && (
         <ExternalList>
           <form onSubmit={e => e.preventDefault()}>
-            <BsSearch size={30} />
-            <label htmlFor="search">
-              <input
-                type="text"
-                id="search"
-                name="search"
-                placeholder="Procurar visita"
-                onChange={e => handleSearchVisitChange(e.target.value)}
-              />
-            </label>
+            <div className="textInputSearch">
+              <BsSearch size={30} />
+              <label htmlFor="search">
+                <input
+                  type="text"
+                  id="search"
+                  name="search"
+                  placeholder="Procurar visita"
+                  onChange={e => handleSearchVisitChange(e.target.value)}
+                />
+              </label>
+            </div>
 
-            <label htmlFor="dateSearch">
-              <input
-                type="date"
-                id="dateSearch"
-                name="dateSearch"
-                placeholder="Procurar visita"
-                onChange={e => handleSearchVisitChange(e.target.value)}
-              />
-            </label>
+            <div className="dateInputSearch">
+              <BsFillCalendarFill size={30} />
+              <label htmlFor="dateSearch">
+                <input
+                  type="date"
+                  id="dateSearch"
+                  name="dateSearch"
+                  placeholder="Procurar visita"
+                  onChange={e => handleDateSearchVisitChange(e.target.value)}
+                />
+              </label>
+            </div>
           </form>
 
           <List>

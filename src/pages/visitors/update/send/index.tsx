@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import validator from 'validator';
 import { Container } from '@styles/Index/Index';
 import { VisitorFormContainer } from '@styles/Visitors/Create/Index';
 import toast from '@services/toastMessage';
@@ -12,24 +11,16 @@ import Loading from '@components/Loading';
 const Index: NextPage = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean | ''>(false);
-  const [email, setEmail] = useState<string | ''>('');
+  const { email } = router.query;
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     try {
       setIsLoading(true);
       e.preventDefault();
 
-      if (!validator.isEmail(email)) {
-        setIsLoading(false);
-        toast('O e-mail inserido é inválido', 'error');
-        return;
-      }
-
       const { data, status } = await axios.post(
-        '/visitors/update/generate-link',
-        {
-          email,
-        }
+        `/visitors/update/generate-link/`,
+        { email }
       );
 
       if (status !== 200) {

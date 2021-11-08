@@ -5,7 +5,6 @@ export const VisitorFormContainer = styled.div`
   padding: 40px 20px;
   font-size: 20px;
   display: flex;
-  flex: 1;
   flex-direction: column;
   align-items: left;
   text-align: left;
@@ -42,10 +41,10 @@ export const VisitorFormContainer = styled.div`
   form {
     display: flex;
     align-items: flex-start;
+    justify-content: center;
     flex-direction: column;
     width: 100%;
     padding: 30px 10px;
-    flex: 1;
 
     label {
       margin-top: 15px;

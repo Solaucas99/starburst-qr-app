@@ -119,10 +119,6 @@ export const AmplifyLoginContainer = styled.div`
     width: 100%;
     padding: 0px 5px;
 
-    @media screen and (max-width: 450px) and (min-height: 400px) and (max-height: 950px) {
-      width: 100%;
-    }
-
     div.formLabel {
       width: 80%;
       position: relative;

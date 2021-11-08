@@ -16,20 +16,23 @@ import { Container } from '@styles/Home/Home';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'animate.css';
+import Footer from '@components/Footer';
 
 const MyApp: NextPage<AppProps> = ({ Component, pageProps, router }) => {
   const { state } = useContext(UserContext);
 
   if (
-    router.route === '/visitors/register' &&
+    (router.route === '/visitors/register' ||
+      router.route === '/visitors/update') &&
     router.query.access &&
     router.query.generatedId &&
-    router.query.bie
+    router.query.bie &&
+    router.query.auth
   ) {
     return (
       <>
         <Head>
-          <title>STARBURST-QR : Cadastro de Visitante</title>
+          <title>STARBURST-QR : Visitante</title>
           <meta
             name="viewport"
             content="initial-scale=1.0, width=device-width"
@@ -62,6 +65,7 @@ const MyApp: NextPage<AppProps> = ({ Component, pageProps, router }) => {
         {!state.emailConfirmed ? <EmailNotVerifiedPopup /> : null}
         <Navigation username={state.username} />
         <Component {...pageProps} />
+        <Footer />
       </ThemeProvider>
     </>
   ) : (

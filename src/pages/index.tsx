@@ -4,13 +4,6 @@ import Image from 'next/image';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Card, Button } from 'react-bootstrap';
-import {
-  AiOutlineFacebook,
-  AiOutlineGithub,
-  AiOutlineInstagram,
-  AiOutlineLinkedin,
-  AiOutlineTwitter,
-} from 'react-icons/ai';
 
 import { useFetch } from '@hooks/useFetch';
 import { Container, HomePage } from '@styles/Index/Index';
@@ -22,6 +15,12 @@ import FluxImage from '@images/index/visitcreationflux.png';
 import { IVisit } from '@interfaces/Visits/IVisit';
 
 const Index: NextPage = () => {
+  type Elements = (typeof introElementRef.current[] | HTMLElement[]) | null;
+  interface ObserverSubject {
+    subscribe: (...observers: Elements) => void;
+    notifyAll: () => void;
+  }
+
   const introElementRef = useRef<HTMLElement>(null);
   const fluxRef = useRef<HTMLElement>(null);
   const visitsCardsRef = useRef<HTMLElement>(null);
@@ -36,14 +35,10 @@ const Index: NextPage = () => {
     const hour = dateForFilter.getHours();
     const minutes = dateForFilter.getMinutes();
 
-    return `${day}/${month}/${year} - ${hour}:${minutes}`;
+    return `${day}/${month}/${year} - ${hour <= 9 ? `0${hour}` : hour}:${
+      minutes <= 9 ? `0${minutes}` : minutes
+    }`;
   };
-  type Elements = (typeof introElementRef.current[] | HTMLElement[]) | null;
-
-  interface ObserverSubject {
-    subscribe: (...observers: Elements) => void;
-    notifyAll: () => void;
-  }
 
   const subject = useCallback((): ObserverSubject => {
     const stateObservers: {
@@ -96,65 +91,65 @@ const Index: NextPage = () => {
 
       <Container>
         {isLoading && <Loading isLoading={isLoading} />}
-        {!data && isError && <p>Ops... Parece que ocorreu um erro :( </p>}
-        {data && data.data.length > 0 && (
-          <HomePage>
-            <div className="intro">
-              <section
-                className="introContainer animate__animated animate__fadeInLeft"
-                ref={introElementRef}
-              >
-                <section className="introText">
-                  <h1>Starburst-QR</h1>
-                  <p>
-                    Trazemos a tecnologia para sua organização! Agende e receba
-                    visitantes em sua empresa de forma totalmente segura e
-                    automatizada e evite processos burocráticos de autenticação.
-                  </p>
-                  <button type="button" className="knowMore">
-                    <Link href="#knowMore">
-                      <a>Saiba mais</a>
-                    </Link>
-                  </button>
-                </section>
-
-                <section className="introImages">
-                  <Image src={QRImage} />
-                  <small>
-                    Facilitando a burocracia pro visitante se identificar!
-                  </small>
-                </section>
-              </section>
-            </div>
-
-            <main id="knowMore" className="mainContainer">
-              <section className="flux">
-                <section
-                  ref={fluxRef}
-                  className="animate__animated fluxContent"
-                >
-                  <h1>Como funciona o fluxo para criar visitas?</h1>
-
-                  <span className="imgFlux">
-                    <Image src={FluxImage} />
-                    <small>Fluxo para administradores do sistema</small>
-                  </span>
-
-                  <p>
-                    E pronto! Simples assim. Agora o visitante com os dados
-                    recebidos no e-mail pode no dia da visita apresentar o
-                    QR-Code enviado pra ele e assim ser autenticado de forma
-                    simples e automatizada...
-                  </p>
-                </section>
+        <HomePage>
+          <div className="intro">
+            <section
+              className="introContainer animate__animated animate__fadeInLeft"
+              ref={introElementRef}
+            >
+              <section className="introText">
+                <h1>Starburst-QR</h1>
+                <p>
+                  Trazemos a tecnologia para sua organização! Agende e receba
+                  visitantes em sua empresa de forma totalmente segura e
+                  automatizada e evite processos burocráticos de autenticação.
+                </p>
+                <button type="button" className="knowMore">
+                  <Link href="#knowMore">
+                    <a>Saiba mais</a>
+                  </Link>
+                </button>
               </section>
 
-              <section
-                ref={visitsCardsRef}
-                className="visitsCards animate__animated"
-              >
-                <h1>Ultimas Visitas agendadas</h1>
+              <section className="introImages">
+                <Image src={QRImage} />
+                <small>
+                  Facilitando a burocracia pro visitante se identificar!
+                </small>
+              </section>
+            </section>
+          </div>
 
+          <main id="knowMore" className="mainContainer">
+            <section className="flux">
+              <section ref={fluxRef} className="animate__animated fluxContent">
+                <h1>Como funciona o fluxo para criar visitas?</h1>
+
+                <span className="imgFlux">
+                  <Image src={FluxImage} />
+                  <small>Fluxo para administradores do sistema</small>
+                </span>
+
+                <p>
+                  E pronto! Simples assim. Agora o visitante com os dados
+                  recebidos no e-mail pode no dia da visita apresentar o QR-Code
+                  enviado pra ele e assim ser autenticado de forma simples e
+                  automatizada...
+                </p>
+              </section>
+            </section>
+
+            <section
+              ref={visitsCardsRef}
+              className="visitsCards animate__animated"
+            >
+              <h1>Ultimas Visitas agendadas</h1>
+              {!data || !data.data || data.data.length === 0 || isError ? (
+                <p>
+                  Ops... Parece que ainda não tem nenhuma visita agendada por
+                  aqui... :({' '}
+                </p>
+              ) : (
                 <div className="cardsRow">
                   {data.data
                     .map(visit => (
@@ -201,42 +196,10 @@ const Index: NextPage = () => {
                     ))
                     .slice(0, 3)}
                 </div>
-              </section>
-            </main>
-
-            <footer>
-              <small>Starburst-QR - Created by Lucas Amorim &copy;</small>
-
-              <div className="social">
-                <a href="www.google.com" className="btnSocialIcons">
-                  <button type="button">
-                    <AiOutlineLinkedin />
-                  </button>
-                </a>
-                <a href="www.google.com" className="btnSocialIcons">
-                  <button type="button">
-                    <AiOutlineGithub />
-                  </button>
-                </a>
-                <a href="www.google.com" className="btnSocialIcons">
-                  <button type="button">
-                    <AiOutlineTwitter />
-                  </button>
-                </a>
-                <a href="www.google.com" className="btnSocialIcons">
-                  <button type="button">
-                    <AiOutlineInstagram />
-                  </button>
-                </a>
-                <a href="www.google.com" className="btnSocialIcons">
-                  <button type="button">
-                    <AiOutlineFacebook />
-                  </button>
-                </a>
-              </div>
-            </footer>
-          </HomePage>
-        )}
+              )}
+            </section>
+          </main>
+        </HomePage>
       </Container>
     </div>
   );

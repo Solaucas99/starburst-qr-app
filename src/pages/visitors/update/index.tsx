@@ -1,10 +1,4 @@
-import React, {
-  useContext,
-  useState,
-  SyntheticEvent,
-  useEffect,
-  useRef,
-} from 'react';
+import React, { useContext, useState, SyntheticEvent, useEffect } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -17,17 +11,80 @@ import toastMessage from '@services/toastMessage';
 import Validate from '@utils/validation/Validate';
 import { VisitorRegisterContainer } from '@styles/Visitors/Register/Index';
 import { Container } from '@styles/Home/Home';
-import CodePopup from '@components/Visitors/CodePopup';
+import CodePopup from '@components/Visitors/UpdateCodePopup';
+import {
+  MdContactPhone,
+  MdDriveFileRenameOutline,
+  MdEmail,
+} from 'react-icons/md';
+
+interface VisitorResponse {
+  message: string;
+  visitorId: string;
+  visitorData: {
+    email: string;
+    phone: string;
+    name: string;
+  };
+}
+
+interface ValidateLinkResponse {
+  message: string;
+  is_in_validation: boolean;
+}
 
 const Index: NextPage = () => {
   const router = useRouter();
-  const privacyCheck = useRef<HTMLInputElement>(null);
-  const promotionsCheck = useRef<HTMLInputElement>(null);
-  const [cpf, setCpf] = useState<string>('');
+
+  const [phoneNumber, setPhoneNumber] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
+
+  const [initialPhoneNumber, setInitialPhoneNumber] = useState<string>('');
+  const [initialEmail, setInitialEmail] = useState<string>('');
+  const [initialName, setInitialName] = useState<string>('');
+  const [visitorId, setVisitorId] = useState<string>('');
   const [isCaptchaChecked, setIsCaptchaChecked] = useState<boolean>(false);
+
   const [isPopupShowing, setIsPopupShowing] = useState<boolean>(false);
+  const [isUserRevalidating, setisUserRevalidating] = useState<boolean>(false);
+  const [isFinished, setIsFinished] = useState<boolean>(false);
+
+  // ------------- Getting URL Query Params ------------------//
+  const queryKeyID = 'generatedId';
+  const queryKeyAccess = 'access';
+  const queryKeyVisitorId = 'visitorId';
+  const queryKeyAuthJWT = 'auth';
+  const queryKeyBie = 'bie';
+
+  const queryValueVisitorId =
+    router.query[queryKeyVisitorId] ||
+    router.asPath.match(new RegExp(`[&?]${queryKeyVisitorId}=(.*)(&|$)`))[1];
+
+  const queryValueID =
+    router.query[queryKeyID] ||
+    router.asPath
+      .match(new RegExp(`[&?]${queryKeyID}=(.*)(&|$)`))[1]
+      .split('&')[0];
+
+  const queryValueAccess =
+    router.query[queryKeyAccess] ||
+    router.asPath
+      .match(new RegExp(`[&?]${queryKeyAccess}=(.*)(&|$)`))[1]
+      .split('&')[0];
+
+  const queryValueAuthJWT =
+    router.query[queryKeyAuthJWT] ||
+    router.asPath
+      .match(new RegExp(`[&?]${queryKeyAuthJWT}=(.*)(&|$)`))[1]
+      .split('&')[0];
+
+  const queryValueBie =
+    router.query[queryKeyBie] ||
+    router.asPath
+      .match(new RegExp(`[&?]${queryKeyBie}=(.*)(&|$)`))[1]
+      .split('&')[0];
+  // ------------- Finish ------------------ //
 
   const { state, setState } = useContext(UserContext);
 
@@ -35,10 +92,10 @@ const Index: NextPage = () => {
     try {
       e.preventDefault();
       setState({ ...state, isLoading: true });
-      const validate = Validate.VisitorsSignIn({
-        cpf,
+      const validate = Validate.VisitorsUpdate({
         email,
         name,
+        phone: `+55${phoneNumber}`,
         isCaptchaChecked,
       });
 
@@ -54,22 +111,34 @@ const Index: NextPage = () => {
         return;
       }
 
-      if (!privacyCheck.current.checked) {
+      if (
+        name === initialName &&
+        email === initialEmail &&
+        phoneNumber === initialPhoneNumber
+      ) {
         setState({ ...state, isLoading: false });
         toastMessage(
-          'Você precisa concordar com as políticas de privacidade.',
+          'Nenhum dado foi modificado no formulário, modifique para atualizar.',
           'error'
         );
         return;
       }
 
-      const { data, status } = await axios.post('/visitors/register', {
-        nome: name,
-        email,
-        cpf: cpf.replace(/\D+/g, ''),
-        accept_promotions: promotionsCheck.current.checked,
-        visitor_link_id: router.query.generatedId,
-      });
+      const { data, status } = await axios.put<VisitorResponse>(
+        `/visitors/${visitorId}`,
+        {
+          visitorAttributes: {
+            nome: name === initialName ? undefined : name,
+            email: email === initialEmail ? undefined : email,
+            phone:
+              phoneNumber === initialPhoneNumber
+                ? undefined
+                : `+55${phoneNumber}`,
+          },
+          updateVisitorLinkId: queryValueID,
+        },
+        { headers: { Authorization: `Bearer ${queryValueAuthJWT}` } }
+      );
 
       if (status !== 200) {
         setState({ ...state, isLoading: false });
@@ -77,18 +146,19 @@ const Index: NextPage = () => {
         return;
       }
       setState({ ...state, isLoading: false });
-      toastMessage('Visitante cadastrado com sucesso!', 'success');
+      toastMessage(data.message, 'success');
+
+      if (email !== initialEmail) {
+        setIsPopupShowing(true);
+        setisUserRevalidating(false);
+        return;
+      }
+
+      setIsFinished(true);
       setIsPopupShowing(true);
     } catch (err) {
       setState({ ...state, isLoading: false });
       toastMessage(err.response.data.message, 'error');
-
-      if (
-        err.response.data.message ===
-        'Para realizar essa ação, você primeiro precisa confirmar seu e-mail'
-      ) {
-        router.push('/auth/admin/verifyemail');
-      }
     }
   };
 
@@ -99,32 +169,17 @@ const Index: NextPage = () => {
   };
 
   useEffect(() => {
+    if (state.isLoggedIn) {
+      router.push('/404');
+    }
+
     const request = async () => {
       try {
-        const queryKeyID = 'generatedId';
-        const queryKeyAccess = 'access';
-        const queryKeyBie = 'bie';
-
-        const queryValueBie =
-          router.query[queryKeyBie] ||
-          router.asPath.match(new RegExp(`[&?]${queryKeyBie}=(.*)(&|$)`))[1];
-
-        const queryValueID =
-          router.query[queryKeyID] ||
-          router.asPath
-            .match(new RegExp(`[&?]${queryKeyID}=(.*)(&|$)`))[1]
-            .split('&')[0];
-
-        const queryValueAccess =
-          router.query[queryKeyAccess] ||
-          router.asPath
-            .match(new RegExp(`[&?]${queryKeyAccess}=(.*)(&|$)`))[1]
-            .split('&')[0];
-
         setState({ ...state, isLoading: true });
-        const { data, status } = await axios.post(
-          `/visitors/validate-link/${queryValueID}`,
-          { token: queryValueAccess, visitor_bie: queryValueBie }
+        const { data, status } = await axios.post<ValidateLinkResponse>(
+          `/visitors/update/validate-link/${queryValueID}`,
+          { token: queryValueAccess, visitor_id: queryValueVisitorId },
+          { headers: { Authorization: `Bearer ${queryValueAuthJWT}` } }
         );
 
         if (status !== 200) {
@@ -135,9 +190,33 @@ const Index: NextPage = () => {
 
         if (data.is_in_validation) {
           setState({ ...state, isLoading: false });
+          setisUserRevalidating(true);
           setIsPopupShowing(true);
           return;
         }
+
+        const { data: visitorData, status: visitorStatus } =
+          await axios.get<VisitorResponse>(`/visitors?bie=${queryValueBie}`, {
+            headers: { Authorization: `Bearer ${queryValueAuthJWT}` },
+          });
+
+        if (visitorStatus !== 200) {
+          setState({ ...state, isLoading: false });
+          router.push('/404');
+          return;
+        }
+
+        setInitialName(visitorData.visitorData.name || '');
+        setInitialEmail(visitorData.visitorData.email || '');
+        setInitialPhoneNumber(
+          visitorData.visitorData.phone.replace('+55', '') || ''
+        );
+
+        setName(visitorData.visitorData.name || '');
+        setEmail(visitorData.visitorData.email || '');
+        setPhoneNumber(visitorData.visitorData.phone.replace('+55', '') || '');
+
+        setVisitorId(visitorData.visitorId || '');
 
         setState({ ...state, isLoading: false });
       } catch (err) {
@@ -152,104 +231,91 @@ const Index: NextPage = () => {
   return (
     <Container>
       <Head>
-        <title>Cadastro : STARBURST-QR</title>
+        <title>Atualizar Dados : STARBURST-QR</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
 
       <Loading isLoading={state.isLoading} />
-      <CodePopup isShowing={isPopupShowing} />
-      <VisitorRegisterContainer>
-        <span>Faça seu cadastro!</span>
-
-        <small>
-          Item com <i>(*)</i> é obrigatório
-        </small>
-
-        <form onSubmit={e => handleSubmit(e)}>
-          <label htmlFor="email">Email</label>
-          <input
-            type="email"
-            placeholder="Insira seu e-mail"
-            name="email"
-            id="email"
-            required
-            onChange={e => setEmail(e.target.value)}
-          />
-
-          <label htmlFor="name">Nome Completo</label>
-          <input
-            type="text"
-            placeholder="Insira seu nome completo"
-            name="name"
-            id="name"
-            required
-            onChange={e => setName(e.target.value)}
-          />
-
-          <label htmlFor="cpf">CPF</label>
-          <input
-            type="text"
-            placeholder="Insira seu CPF"
-            name="cpf"
-            id="cpf"
-            min="11"
-            max="14"
-            required
-            onChange={e => {
-              e.target.value = e.target.value
-                .replace(/[^\d.-]/g, '')
-                .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/g, '$1.$2.$3-$4');
-              setCpf(e.target.value);
-            }}
-          />
-
-          <label htmlFor="privacy_accept">
-            Eu concordo com a política de privacidade *
-            <input
-              ref={privacyCheck}
-              type="checkbox"
-              name="privacy_accept"
-              id="privacy_accept"
-              required
-            />
-          </label>
+      {isPopupShowing ? (
+        <CodePopup
+          visitorIdProp={visitorId}
+          isUserRevalidating={isUserRevalidating}
+          authToken={queryValueAuthJWT as string}
+          updateFinished={isFinished}
+        />
+      ) : (
+        <VisitorRegisterContainer>
+          <span>Atualize seus dados!</span>
 
           <small>
-            <a href="google.com">
-              Clique aqui para ler a política de privacidade
-            </a>
+            Obs: Caso você atualize seu e-mail, será necessário confirmá-lo com
+            um código que será enviado pra o e-mail atualizado.
           </small>
 
-          <label htmlFor="promotions_accept">
-            Eu aceito receber promoções no meu e-mail
-            <input
-              ref={promotionsCheck}
-              type="checkbox"
-              name="promotions_accept"
-              id="promotions_accept"
+          <form onSubmit={e => handleSubmit(e)}>
+            <div className="formLabel">
+              <MdDriveFileRenameOutline />
+              <input
+                type="text"
+                name="name"
+                id="name"
+                required
+                onChange={e => setName(e.target.value)}
+                value={name}
+              />
+              <label htmlFor="name">Insira seu nome completo</label>
+            </div>
+
+            <div className="formLabel">
+              <MdEmail />
+              <input
+                type="email"
+                name="email"
+                id="email"
+                required
+                onChange={e => {
+                  setEmail(e.target.value);
+                }}
+                value={email}
+              />
+              <label htmlFor="email">Insira seu e-mail</label>
+            </div>
+
+            <div className="formLabel">
+              <MdContactPhone />
+              <input
+                type="phone"
+                name="phone"
+                id="phone"
+                required
+                onChange={e => {
+                  e.target.value = e.target.value.replace(
+                    /(\d{0})(\d{2})(\d{0})(\d{5})/,
+                    '$1($2)$3 $4-'
+                  );
+                  setPhoneNumber(e.target.value.replace(/[^\d]/g, ''));
+                }}
+                value={phoneNumber.replace(
+                  /(\d{0})(\d{2})(\d{0})(\d{5})/,
+                  '$1($2)$3 $4-'
+                )}
+              />
+              <label htmlFor="phone">
+                Insira seu celular ou telefone (DDD + Num.)
+              </label>
+            </div>
+
+            <ReCaptcha
+              onChange={handleVerifyCaptcha}
+              sitekey="6Le7yJgaAAAAAELSAVBBz1xz1bLKdqAiGJHxSjkh"
             />
-          </label>
 
-          <small>
-            <a href="google.com">
-              Clique aqui para ler a política de promoções
-            </a>
-          </small>
-
-          <ReCaptcha
-            onChange={handleVerifyCaptcha}
-            sitekey="6Le7yJgaAAAAAELSAVBBz1xz1bLKdqAiGJHxSjkh"
-          />
-
-          <button type="submit" name="register">
-            Enviar
-          </button>
-        </form>
-        <small>
-          Após o registro, você estará disponível para visitar nossa empresa a
-          qualquer momento!
-        </small>
-      </VisitorRegisterContainer>
+            <button type="submit" name="register">
+              Enviar alterações
+            </button>
+          </form>
+        </VisitorRegisterContainer>
+      )}
     </Container>
   );
 };

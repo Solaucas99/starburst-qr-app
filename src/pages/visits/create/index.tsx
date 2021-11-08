@@ -133,6 +133,21 @@ const Index: NextPage = () => {
       e.preventDefault();
       setIsLoading(true);
 
+      if (!searchInputValue) {
+        toast(
+          'Você precisa selecionar um visitante para marcar a visita...',
+          'error'
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      if (!date) {
+        toast('Nenhuma data selecionada', 'error');
+        setIsLoading(false);
+        return;
+      }
+
       const { _id: visitorId } = visitorFilter.find(
         visitor => visitor.nome === searchInputValue
       );
@@ -210,47 +225,50 @@ const Index: NextPage = () => {
 
       {isLoading && <Loading isLoading={isLoading || fetchLoading} />}
 
-      {isError && !data && (
-        <h1>Ocorreu um erro :( tente novamente mais tarde...</h1>
-      )}
-
-      {data && !isError && !isLoading && (
-        <CreateVisitForm onSubmit={e => handleSubmit(e)}>
-          <label id="visitorLabel" htmlFor="visitor">
-            Visitante:
-            <button
-              onClick={e => {
-                e.stopPropagation();
-                handleSelectVisitor();
-              }}
-              type="button"
-              id="dropdownButton"
-              className="dropToggle"
-              disabled={
-                visitorFilter.length === 0 &&
-                visitorInputRef.current &&
-                !visitorInputRef.current.value
-              }
+      <CreateVisitForm onSubmit={e => handleSubmit(e)}>
+        <label id="visitorLabel" htmlFor="visitor">
+          Visitante:
+          <button
+            onClick={e => {
+              e.stopPropagation();
+              handleSelectVisitor();
+            }}
+            type="button"
+            id="dropdownButton"
+            className="dropToggle"
+            disabled={
+              visitorFilter.length === 0 &&
+              visitorInputRef.current &&
+              !visitorInputRef.current.value
+            }
+          >
+            {visitorFilter.length === 0
+              ? 'Não existem visitantes cadastrados ainda :('
+              : searchInputValue || 'Clique aqui para selecionar um visitante'}
+            <IoMdArrowDropdown className="icon" />
+          </button>
+          <VisitorListContainer ref={containerRef}>
+            <div
+              ref={visitorsListRef}
+              className={`visitorFindContainer ${animation}`}
             >
-              {searchInputValue || 'Clique aqui para selecionar um visitante'}
-              <IoMdArrowDropdown className="icon" />
-            </button>
-            <VisitorListContainer ref={containerRef}>
-              <div
-                ref={visitorsListRef}
-                className={`visitorFindContainer ${animation}`}
-              >
-                <span className="inputSpan">
-                  <AiOutlineSearch className="icon" />
-                  <input
-                    onChange={e => handleSearchInputChange(e.target.value)}
-                    onBlur={handleBlurInput}
-                    ref={visitorInputRef}
-                    placeholder="Procurar visitante"
-                    type="text"
-                  />
-                </span>
+              <span className="inputSpan">
+                <AiOutlineSearch className="icon" />
+                <input
+                  onChange={e => handleSearchInputChange(e.target.value)}
+                  onBlur={handleBlurInput}
+                  ref={visitorInputRef}
+                  placeholder="Procurar visitante"
+                  type="text"
+                />
+              </span>
 
+              {isError && !data ? (
+                <h1>
+                  Ocorreu um erro ao carregar a lista de visitantes. Verifique
+                  se tem visitantes cadastrados ou tente novamente mais tarde...
+                </h1>
+              ) : (
                 <ListGroup as="ul" variant="flush">
                   {visitorFilter.map(visitor => (
                     <ListGroup.Item as="li" key={visitor._id}>
@@ -271,56 +289,52 @@ const Index: NextPage = () => {
                     </ListGroup.Item>
                   ))}
                 </ListGroup>
-              </div>
-            </VisitorListContainer>
-          </label>
+              )}
+            </div>
+          </VisitorListContainer>
+        </label>
 
-          <label htmlFor="calendar">
-            Data:
-            <input
-              onChange={handleDateChange}
-              type="date"
-              id="calendar"
-              name="calendar"
-              value={date}
-              min={getActualDate()}
-              max={getMaximumDate()}
-            />
-          </label>
+        <label htmlFor="calendar">
+          Data:
+          <input
+            onChange={handleDateChange}
+            type="date"
+            id="calendar"
+            name="calendar"
+            value={date}
+            min={getActualDate()}
+            max={getMaximumDate()}
+          />
+        </label>
 
-          <label htmlFor="hour">
-            Horas:
-            <select
-              onChange={handleHourChange}
-              id="hourHidden"
-              name="hourHidden"
-            >
-              {Array.from(Array(10), (value, index) => (
-                <option key={index} value={index + 8}>
-                  {index + 8 < 10 ? `0${index + 8}` : index + 8}
-                </option>
-              ))}
-            </select>
-          </label>
+        <label htmlFor="hour">
+          Horas:
+          <select onChange={handleHourChange} id="hourHidden" name="hourHidden">
+            {Array.from(Array(10), (value, index) => (
+              <option key={index} value={index + 8}>
+                {index + 8 < 10 ? `0${index + 8}` : index + 8}
+              </option>
+            ))}
+          </select>
+        </label>
 
-          <label htmlFor="hour">
-            Minutos:
-            <select
-              onChange={handleMinutesChange}
-              id="hourHidden"
-              name="hourHidden"
-            >
-              {Array.from(Array(60), (value, index) => (
-                <option key={index} value={index}>
-                  {index < 10 ? `0${index}` : index}
-                </option>
-              ))}
-            </select>
-          </label>
+        <label htmlFor="hour">
+          Minutos:
+          <select
+            onChange={handleMinutesChange}
+            id="hourHidden"
+            name="hourHidden"
+          >
+            {Array.from(Array(60), (value, index) => (
+              <option key={index} value={index}>
+                {index < 10 ? `0${index}` : index}
+              </option>
+            ))}
+          </select>
+        </label>
 
-          <Button type="submit">Agendar</Button>
-        </CreateVisitForm>
-      )}
+        <Button type="submit">Agendar</Button>
+      </CreateVisitForm>
     </Container>
   );
 };

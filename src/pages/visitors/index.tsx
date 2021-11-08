@@ -8,7 +8,6 @@ import { BsSearch } from 'react-icons/bs';
 import { HiOutlineClipboardList } from 'react-icons/hi';
 import { BiEdit } from 'react-icons/bi';
 
-import { decryptAES } from '@utils/decrypt';
 import { Container } from '@styles/Index/Index';
 import { List, ExternalList } from '@styles/Visitors/Index/Index';
 import { useFetch } from '@hooks/useFetch';
@@ -66,13 +65,7 @@ const Index: NextPage = () => {
 
   useEffect(() => {
     if (data) {
-      const arr = data.data.map(value => {
-        const visitor = value;
-        visitor.email = decryptAES(value.email);
-        visitor.cpf = decryptAES(value.cpf);
-        return visitor;
-      });
-      setVisitorFilter(arr);
+      setVisitorFilter(data.data);
     }
   }, [data]);
 

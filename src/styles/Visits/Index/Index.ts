@@ -44,6 +44,7 @@ export const ExternalList = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
 
     @media screen and (max-width: 450px) and (min-height: 400px) and (max-height: 950px) {
       font-size: 14px;
@@ -53,55 +54,56 @@ export const ExternalList = styled.div`
       font-size: 16px;
     }
 
-    input {
-      margin-right: 10px;
-      margin-left: 10px;
-      padding: 10px 25px;
-      border-radius: 5px;
+    div.textInputSearch,
+    div.dateInputSearch {
+      display: flex;
+      flex-direction: row;
+      padding: 10px;
+      align-items: center;
+      justify-content: center;
       width: 100%;
-      border: none;
+
+      input {
+        margin-right: 10px;
+        margin-left: 10px;
+        padding: 10px 25px;
+        border-radius: 5px;
+        width: 350px;
+        border: none;
+      }
     }
   }
 
-  div {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    width: 100%;
-    min-height: 200px;
+  .divList {
+    width: 70%;
+    flex-direction: row;
+    margin-top: 5px;
 
-    .divList {
-      width: 70%;
-      flex-direction: row;
-      margin-top: 5px;
+    span {
+      margin-right: 19px;
+      background: ${props => props.theme.colors.textGradient};
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 25px;
 
-      span {
-        margin-right: 19px;
-        background: ${props => props.theme.colors.textGradient};
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 25px;
-
-        @media screen and (max-width: 450px) and (min-height: 400px) and (max-height: 950px) {
-          margin-right: 9px;
-          font-size: 15px;
-        }
-
-        @media screen and (max-width: 900px) and (min-height: 951px) and (max-height: 1250px) {
-          margin-right: 12px;
-          font-size: 15px;
-        }
+      @media screen and (max-width: 450px) and (min-height: 400px) and (max-height: 950px) {
+        margin-right: 9px;
+        font-size: 15px;
       }
 
-      li {
-        span {
-          margin-right: 19px;
-          color: purple;
-          -webkit-text-fill-color: inherit;
-          background: inherit;
-          font-size: 15px;
-        }
+      @media screen and (max-width: 900px) and (min-height: 951px) and (max-height: 1250px) {
+        margin-right: 12px;
+        font-size: 15px;
+      }
+    }
+
+    li {
+      span {
+        margin-right: 19px;
+        color: purple;
+        -webkit-text-fill-color: inherit;
+        background: inherit;
+        font-size: 15px;
       }
     }
   }

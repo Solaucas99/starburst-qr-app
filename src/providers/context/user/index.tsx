@@ -73,15 +73,5 @@ const WrappedContext = (Component: NextPage): NextPage => {
   return NewComponent;
 };
 
-// const UserContextProvider: NextPage = ({ children }) => {
-//   const [state, setState] = useState(DEFAULT_VALUE.state);
-
-//   return (
-//     <UserContext.Provider value={{ state, setState }}>
-//       {children}
-//     </UserContext.Provider>
-//   );
-// };
-
 export { WrappedContext };
 export default UserContext;

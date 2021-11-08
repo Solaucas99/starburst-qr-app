@@ -14,7 +14,8 @@ const Popup: NextPage<{
   isUserRevalidating: boolean;
   visitorIdProp: string;
   authToken: string;
-}> = ({ isUserRevalidating, visitorIdProp, authToken }) => {
+  updateFinished: boolean;
+}> = ({ isUserRevalidating, visitorIdProp, authToken, updateFinished }) => {
   const [code, setCode] = useState<string>('');
   const [visitorId, setVisitorId] = useState<string>(visitorIdProp || '');
   const [isFinished, setIsFinished] = useState<boolean>(false);
@@ -64,7 +65,7 @@ const Popup: NextPage<{
         router.asPath.match(new RegExp(`[&?]${queryKeyID}=(.*)(&|$)`))[1];
 
       const { data, status } = await axios.post(
-        `/confirmvisitor/${visitorId}`,
+        `/update/confirmvisitor/${visitorId}`,
         {
           generated_pass: code,
           visitor_link_id: queryValueID,
@@ -86,12 +87,10 @@ const Popup: NextPage<{
 
   return (
     <VisitorPopupCode>
-      {isFinished ? (
-        <h1>Obrigado por se cadastrar!</h1>
+      {isFinished || updateFinished ? (
+        <h1>Obrigado!</h1>
       ) : (
         <div className="animate__animated animate__fadeInLeft">
-          <p>Obrigado por se cadastrar, mas falta uma etapa...</p>
-
           <small>
             Enviamos um código para o seu e-mail, digite ele abaixo para nos
             confirmar que seu e-mail existe:{' '}

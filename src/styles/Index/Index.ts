@@ -8,6 +8,9 @@ export const Container = styled.div`
   color: ${props => props.theme.colors.text};
   transition: ease-in 0.2s;
   width: 100%;
+  padding: 40px 0px;
+  background-color: ${props => `${props.theme.colors.background}A5`};
+  min-height: 100vh;
 
   .list-group-container {
     width: 70%;
@@ -71,50 +74,8 @@ export const HomePage = styled.div`
     'main main main main main main'
     'footer footer footer footer footer footer';
 
-  footer {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    background: ${props => props.theme.colors.footerColor};
-    padding: 20px;
-    font-size: 16px;
-    color: ${props => props.theme.colors.footerText};
-    grid-area: footer;
-    border-top: 3px solid ${props => props.theme.colors.primary};
-    max-width: 100vw;
-
-    h1 {
-      color: ${props => props.theme.colors.footerText};
-    }
-
-    div.social {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-around;
-      width: 15%;
-
-      a.btnSocialIcons {
-        button {
-          font-size: 28px;
-          background: transparent;
-          border: none;
-          transition: all 0.5s;
-          color: ${props => props.theme.colors.footerText};
-          padding: 10px;
-
-          &:hover {
-            color: ${props => props.theme.colors.primaryHover};
-            transform: translateY(-10px);
-          }
-        }
-      }
-    }
-  }
-
   div.intro {
-    background-color: ${props => `${props.theme.colors.background}A5`};
+    /* background-color: ${props => `${props.theme.colors.background}A5`}; */
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -287,7 +248,7 @@ export const HomePage = styled.div`
       flex: 1;
       flex-wrap: wrap;
       width: 100%;
-      background: ${props => `${props.theme.colors.background}B5`};
+      /* background: ${props => `${props.theme.colors.background}B5`}; */
 
       h1 {
         color: ${props => props.theme.colors.reverseText};
