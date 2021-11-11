@@ -1,4 +1,4 @@
-import React, { useContext, useState, SyntheticEvent } from 'react';
+import React, { useContext, useState, SyntheticEvent, useRef } from 'react';
 import { NextPage } from 'next';
 import Image from 'next/image';
 import { FaUserAlt } from 'react-icons/fa';
@@ -38,10 +38,14 @@ const Login: NextPage = () => {
   const [challengeName, setChallengeName] = useState<string>('');
   const [sessionCognito, setSessionCognito] = useState<string>('');
 
+  const newPassRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+
   const { state, setState } = useContext(UserContext);
 
   const setLoggedState = async (): Promise<void> => {
     const { data } = await axios.get<CognitoGetUserResponse>('/user');
+
     const { Value: email_confirmed } = data.data.UserAttributes.filter(
       attribute => attribute.Name === 'email_verified'
     )[0];
@@ -90,11 +94,15 @@ const Login: NextPage = () => {
           'Você precisa atualizar sua senha por ordem do administrador!',
           'info'
         );
+        newPassRef.current.value = '';
+        nameRef.current.value = '';
         return;
       }
 
       if (status === 200) {
-        setLoggedState();
+        await setLoggedState();
+        newPassRef.current.value = '';
+        nameRef.current.value = '';
       }
     } catch (err) {
       setState({ ...state, isLoading: false });
@@ -142,8 +150,11 @@ const Login: NextPage = () => {
         return;
       }
 
-      if (challengeResponseData.IdToken) {
-        setLoggedState();
+      if (
+        challengeResponseData.AuthenticationResult.IdToken &&
+        challengeResponseData.AuthenticationResult.AccessToken
+      ) {
+        await setLoggedState();
       }
     } catch (err) {
       setState({ ...state, isLoading: false });
@@ -172,9 +183,9 @@ const Login: NextPage = () => {
                   name="new-password"
                   id="new-password"
                   required
-                  value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   autoComplete="off"
+                  ref={newPassRef}
                 />
                 <label htmlFor="new-password">Insira sua nova senha</label>
               </div>
@@ -187,8 +198,8 @@ const Login: NextPage = () => {
                   id="name"
                   required
                   onChange={e => setName(e.target.value)}
-                  value={name}
                   autoComplete="off"
+                  ref={nameRef}
                 />
                 <label htmlFor="name">Insira seu nome completo</label>
               </div>
@@ -201,7 +212,6 @@ const Login: NextPage = () => {
                   id="nickname"
                   required
                   onChange={e => setNickname(e.target.value)}
-                  value={nickname}
                   autoComplete="off"
                 />
                 <label htmlFor="nickname">Insira seu apelido</label>
@@ -223,7 +233,6 @@ const Login: NextPage = () => {
                       `+55${e.target.value.replace(/[^\d]/g, '')}`
                     );
                   }}
-                  value={phoneNumber}
                   autoComplete="off"
                 />
                 <label htmlFor="phone">
