@@ -24,7 +24,6 @@ const Visit: NextPage = () => {
     data,
     isLoading: fetchLoading,
     isError,
-    mutate,
   } = useFetch<IVisit>(`/visits/${id}`);
 
   const [isLoading, setIsLoading] = useState<boolean | ''>(false);
@@ -89,34 +88,6 @@ const Visit: NextPage = () => {
     },
     [router, id]
   );
-
-  const handleConfirmVisit = async (): Promise<void> => {
-    try {
-      setIsLoading(true);
-      const response = await axios.get<IAxiosResponse<IVisit>>(
-        `/visits/confirmvisit/${id}`
-      );
-
-      if (response.status !== 200) {
-        setIsLoading(false);
-        toast(response.data.message, 'error');
-        return;
-      }
-
-      setIsLoading(false);
-      toast(response.data.message, 'success');
-      mutate();
-    } catch (err) {
-      setIsLoading(false);
-      toast(err.response.data.message, 'error');
-      if (
-        err.response.data.message ===
-        'Para realizar essa ação, você primeiro precisa confirmar seu e-mail'
-      ) {
-        router.push('/auth/admin/verifyemail');
-      }
-    }
-  };
 
   return (
     <Container>
@@ -187,13 +158,6 @@ const Visit: NextPage = () => {
                 disabled={!!data.data.finished}
               >
                 Cancelar Visita
-              </Button>
-              <Button
-                variant="success"
-                onClick={handleConfirmVisit}
-                disabled={!!data.data.finished}
-              >
-                Marcar como finalizada
               </Button>
             </ListVisit.Item>
           </ListVisit>

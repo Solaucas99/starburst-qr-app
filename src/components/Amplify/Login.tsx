@@ -5,6 +5,7 @@ import { FaUserAlt } from 'react-icons/fa';
 import { RiLockPasswordFill, RiUserVoiceFill } from 'react-icons/ri';
 import { HiIdentification } from 'react-icons/hi';
 import { MdContactPhone } from 'react-icons/md';
+import { useCookies } from '@hooks/useCookies';
 import Loading from '../Loading';
 import UserContext from '../../providers/context/user/index';
 import toastMessage from '../../services/toastMessage';
@@ -18,6 +19,7 @@ import axios from '../../services/axios';
 import {
   CognitoGetUserResponse,
   CognitoLoginResponse,
+  AuthenticationResultType,
 } from '../../interfaces/Cognito/ICognito';
 
 import logoDark from '../../../public/icons/logo/logo-dark.png';
@@ -38,12 +40,22 @@ const Login: NextPage = () => {
   const [challengeName, setChallengeName] = useState<string>('');
   const [sessionCognito, setSessionCognito] = useState<string>('');
 
+  // CookiesHook
+  const { setCookies } = useCookies();
+
   const newPassRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
   const { state, setState } = useContext(UserContext);
 
-  const setLoggedState = async (): Promise<void> => {
+  const setLoggedState = async (
+    authResult: AuthenticationResultType
+  ): Promise<void> => {
+    setCookies('idToken', authResult.IdToken);
+    setCookies('accessToken', authResult.AccessToken);
+    if (authResult.RefreshToken)
+      setCookies('refreshToken', authResult.RefreshToken, true);
+
     const { data } = await axios.get<CognitoGetUserResponse>('/user');
 
     const { Value: email_confirmed } = data.data.UserAttributes.filter(
@@ -100,9 +112,9 @@ const Login: NextPage = () => {
       }
 
       if (status === 200) {
-        await setLoggedState();
-        newPassRef.current.value = '';
-        nameRef.current.value = '';
+        await setLoggedState(data.AuthenticationResult);
+        // newPassRef.current.value = '';
+        // nameRef.current.value = '';
       }
     } catch (err) {
       setState({ ...state, isLoading: false });
@@ -154,7 +166,7 @@ const Login: NextPage = () => {
         challengeResponseData.AuthenticationResult.IdToken &&
         challengeResponseData.AuthenticationResult.AccessToken
       ) {
-        await setLoggedState();
+        await setLoggedState(challengeResponseData.AuthenticationResult);
       }
     } catch (err) {
       setState({ ...state, isLoading: false });
